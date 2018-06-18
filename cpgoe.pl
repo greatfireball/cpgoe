@@ -6,6 +6,7 @@ use warnings;
 use Pod::Usage;
 
 use Getopt::Long;
+use Bio::SeqIO;
 
 my $fasta = "";
 my $gff   = "";
@@ -40,6 +41,49 @@ while(<FH>)
     push(@{$gffcontent->{$chr}}, { chr => $chr, type => $type, start => $start, stop => $stop, strand => $strand }) if ($type eq $gfftype);
 }
 close(FH) || die "Unable to close '$gff': $!\n";
+
+# get the sequence file
+my $seqio_object = Bio::SeqIO->new(-file => $fasta);
+
+while (my $seq_object = $seqio_object->next_seq)
+{
+    if (exists $gffcontent->{$seq_object->id()})
+    {
+	foreach my $item (@{$gffcontent->{$seq_object->id()}})
+	{
+	    my $seq = substr($seq_object->seq(), $item->{start}, ($item->{stop}-$item->{start}+1));
+
+	    if ($item->{strand} eq "-")
+	    {
+		$seq = reverse $seq;
+		$seq =~ tr/ACGTacgt/TGCAtgca/;
+	    }
+	    my $num_c = $seq =~ tr/Cc/Cc/;
+	    my $num_g = $seq =~ tr/Gg/Gg/;
+
+	    my $len = length($seq);
+
+	    my %dinucl_comp = ();
+	    for(my $i=0; $i<$len-1; $i++)
+	    {
+		my $dinucl = substr($seq, $i, 2);
+		$dinucl_comp{lc($dinucl)}++;
+	    }
+
+	    my $prob_c = $num_c/$len;
+	    my $prob_g = $num_g/$len;
+
+	    my $num_cg = 0;
+	    $num_cg = $dinucl_comp{gc} if (exists $dinucl_comp{gc});
+	    my $prob_cg = $num_cg/$len;
+
+	    my $cpgoe = $prob_cg/($prob_c*$prob_g);
+
+	    print join("\t", $seq_object->id(), $item->{start}, $item->{stop}, $item->{strand}, $num_c, $prob_c, $num_g, $prob_g, $num_cg, $prob_cg, $cpgoe), "\n";
+	}
+    }
+}
+
 
 =pod
 
