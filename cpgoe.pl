@@ -23,7 +23,7 @@ pod2usage( -exitval => 0, -verbose => 2 ) if $man;
 
 if ($fasta eq "" || $gff eq "")
 {
-    pod2usage( -exitval => 1, -verbose => 1 );
+    pod2usage( -exitval => 1, -verbose => 2 );
 }
 
 
