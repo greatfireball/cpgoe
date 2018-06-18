@@ -9,11 +9,13 @@ use Getopt::Long;
 
 my $fasta = "";
 my $gff   = "";
+my $gfftype = "mRNA";
 my ($help, $man);
 
 GetOptions(
     'i|in|fasta=s' => \$fasta,
     'gff=s'        => \$gff,
+    'type=s'       => \$gfftype,
     'manual!'      => \$man,
     'help!'        => \$help
     ) || pod2usage( "Try '$0 --help' for more information." );
@@ -35,7 +37,7 @@ while(<FH>)
 
     my ($chr, undef, $type, $start, $stop, undef, $strand) = split(/\t/);
 
-    push(@{$gffcontent->{$chr}}, { chr => $chr, type => $type, start => $start, stop => $stop, strand => $strand });
+    push(@{$gffcontent->{$chr}}, { chr => $chr, type => $type, start => $start, stop => $stop, strand => $strand }) if ($type eq $gfftype);
 }
 close(FH) || die "Unable to close '$gff': $!\n";
 
