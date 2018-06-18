@@ -26,6 +26,18 @@ if ($fasta eq "" || $gff eq "")
     pod2usage( -exitval => 1, -verbose => 2 );
 }
 
+my $gffcontent = {};
+
+open(FH, "<", $gff) || die "Unable to open '$gff': $!\n";
+while(<FH>)
+{
+    chomp;
+
+    my ($chr, undef, $type, $start, $stop, undef, $strand) = split(/\t/);
+
+    push(@{$gffcontent->{$chr}}, { chr => $chr, type => $type, start => $start, stop => $stop, strand => $strand });
+}
+close(FH) || die "Unable to close '$gff': $!\n";
 
 =pod
 
