@@ -48,6 +48,9 @@ close(FH) || die "Unable to close '$gff': $!\n";
 # get the sequence file
 my $seqio_object = Bio::SeqIO->new(-file => $fasta);
 
+# print a header line
+print join("\t", qw(#chr start stop strand num_c prob_c num_g prob_g num_cg prob_cg cpgoe)), "\n";
+
 while (my $seq_object = $seqio_object->next_seq)
 {
     if (exists $gffcontent->{$seq_object->id()})
