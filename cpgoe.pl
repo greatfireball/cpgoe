@@ -38,7 +38,10 @@ while(<FH>)
 
     my ($chr, undef, $type, $start, $stop, undef, $strand) = split(/\t/);
 
-    push(@{$gffcontent->{$chr}}, { chr => $chr, type => $type, start => $start, stop => $stop, strand => $strand }) if ($type eq $gfftype);
+    if (defined $type && $type eq $gfftype)
+    {
+	push(@{$gffcontent->{$chr}}, { chr => $chr, type => $type, start => $start, stop => $stop, strand => $strand });
+    }
 }
 close(FH) || die "Unable to close '$gff': $!\n";
 
